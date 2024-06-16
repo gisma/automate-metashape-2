@@ -647,7 +647,7 @@ def build_point_cloud(doc, log_file, run_id, cfg):
         subdivide_task=cfg["subdivide_task"],
         point_colors=True,
     )
-
+    doc.chunk.smoothModel(cfg["noiterations"]) 
     # get an ending time stamp for the previous step
     timer3b = time.time()
 
@@ -701,13 +701,13 @@ def build_model(doc, log_file, run_id, cfg):
     start_time = time.time()
     # Build the mesh
     doc.chunk.buildModel(
-        surface_type=Metashape.Arbitrary,
+        surface_type=Metashape.HeightField,
         interpolation=Metashape.EnabledInterpolation,
         face_count=cfg["buildModel"]["face_count"],
         face_count_custom=cfg["buildModel"][
             "face_count_custom"
         ],  # Only used if face_count is custom
-        source_data=Metashape.DepthMapsData,
+        source_data=Metashape.TiePointsData,
     )
 
     time_taken = diff_time(time.time(), start_time)
@@ -769,7 +769,10 @@ def build_dem_orthomosaic(doc, log_file, run_id, cfg):
     """
     Build end export DEM
     """
-
+    # Building an orthomosaic from the mesh does not require a DEM, so this is done separately, independent of any DEM building
+    if (cfg["buildOrthomosaic"]["enabled"] and "Mesh" in cfg["buildOrthomosaic"]["surface"]):
+        build_export_orthomosaic(doc, log_file, run_id, cfg, from_mesh = True, file_ending="mesh")
+        
     # classify ground points if specified
     if cfg["buildDem"]["classify_ground_points"]:
         classify_ground_points(doc, log_file, run_id, cfg)
@@ -873,9 +876,7 @@ def build_dem_orthomosaic(doc, log_file, run_id, cfg):
                 if cfg["buildOrthomosaic"]["enabled"] and "DSM-mesh" in cfg["buildOrthomosaic"]["surface"]:
                     build_export_orthomosaic(doc, log_file, run_id, cfg, file_ending="dsm-mesh")
 
-    # Building an orthomosaic from the mesh does not require a DEM, so this is done separately, independent of any DEM building
-    if (cfg["buildOrthomosaic"]["enabled"] and "Mesh" in cfg["buildOrthomosaic"]["surface"]):
-        build_export_orthomosaic(doc, log_file, run_id, cfg, from_mesh = True, file_ending="mesh")
+
     
     if(cfg["buildPointCloud"]["remove_after_export"]):
         doc.chunk.remove(doc.chunk.point_clouds)
@@ -912,6 +913,7 @@ def build_export_orthomosaic(doc, log_file, run_id, cfg, file_ending, from_mesh 
         refine_seamlines=cfg["buildOrthomosaic"]["refine_seamlines"],
         subdivide_task=cfg["subdivide_task"],
         projection=projection,
+        resolution = cfg["orthoRes"]"
     )
 
     # get an ending time stamp for the previous step

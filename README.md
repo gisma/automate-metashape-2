@@ -63,7 +63,7 @@ All of the parameters defining the Metashape workflow are specified in the confi
 
 An example configuration file is provided in this repo at `config/example.yml`. The file contains comments explaining the purpose of each customizable parameter. To prepare a customized workflow, copy the `config/example.yml` file to a new location, edit the parameter values to meet your specifications, save it, and then run the metashape workflow from the command line as described above, passing it the location of the customized configuration file. Do not remove or add parameters to the configuration file; adding will have no effect unless the Python code is changed along with the addition, and removing will produce errors.
 
-The workflow configuration is saved in a procesing log at the end of a workflow run (see below).
+The workflow configuration is saved in a processing log at the end of a workflow run (see below).
 
 #### Batch workflow configuration ####
 
